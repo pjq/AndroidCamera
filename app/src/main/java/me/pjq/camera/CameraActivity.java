@@ -212,6 +212,7 @@ public class CameraActivity extends FragmentActivity implements View.OnClickList
                 FileOutputStream fileOutputStream = new FileOutputStream(file);
                 fileOutputStream.write(data);
                 fileOutputStream.close();
+                Toast.makeText(getApplicationContext(), "Save to " + file.getAbsolutePath(), Toast.LENGTH_SHORT).show();
             } catch (Exception e) {
                 e.printStackTrace();
             }

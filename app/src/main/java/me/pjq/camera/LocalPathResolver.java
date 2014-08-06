@@ -10,7 +10,7 @@ public class LocalPathResolver {
 
     private static final String TAG = LocalPathResolver.class.getSimpleName();
 
-    private static final String BASE_DIR = "/androidcamera";
+    private static final String BASE_DIR = "/qcamera";
     private static String base;
 
     public static void init(Context context) {
@@ -18,15 +18,18 @@ public class LocalPathResolver {
         LocalPathResolver.base = baseDir;
 
         File file = new File(getBaseDir());
-        if (!file.exists()){
-            file.mkdirs();
+        if (!file.isDirectory()){
+            boolean result = file.mkdirs();
+            if (result){
+
+            }
         }
     }
 
     // Gets the root file storage directory.
     private static String getDir(Context context) {
         String base;
-        boolean usingSdcard = false;
+        boolean usingSdcard = true;
         if (usingSdcard) {
             base = Environment.getExternalStorageDirectory().getPath();
         } else {

@@ -1,7 +1,9 @@
 package me.pjq.camera;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.hardware.Camera;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
@@ -50,6 +52,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
             e.printStackTrace();
         }
 
+
         setPreviewSize();
 
         try {
@@ -58,13 +61,33 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        autoFocus();
     }
 
     private void setPreviewSize() {
         Camera.Parameters parameters = camera.getParameters();
-        parameters.setPreviewSize(supportedSizes.width, supportedSizes.height);
-        requestLayout();
+
+//            parameters.setPreviewSize(supportedSizes.width, supportedSizes.height);
+        if (this.getResources().getConfiguration().orientation != Configuration.ORIENTATION_LANDSCAPE) {
+            parameters.set("orientation", "portrait");
+            camera.setDisplayOrientation(90);
+        } else {
+            parameters.set("orientation", "landscape");
+            camera.setDisplayOrientation(0);
+        }
         camera.setParameters(parameters);
+        requestLayout();
+    }
+
+    private void autoFocus() {
+        camera.autoFocus(new Camera.AutoFocusCallback() {
+            @Override
+            public void onAutoFocus(boolean success, Camera camera) {
+                if (success) {
+                }
+            }
+        });
     }
 
     @Override
@@ -88,7 +111,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
             List<Camera.Size> sizes = camera.getParameters().getSupportedPreviewSizes();
             supportedSizes = sizes.get(0);
 
-            requestLayout();
+            setPreviewSize();
 
             try {
                 camera.setPreviewDisplay(holder);
@@ -106,5 +129,11 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
             camera.release();
             camera = null;
         }
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        autoFocus();
+        return super.onTouchEvent(event);
     }
 }
