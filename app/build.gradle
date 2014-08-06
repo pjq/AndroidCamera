@@ -96,13 +96,13 @@ android {
         release {
             runProguard true
 //            testCoverageEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles 'proguard-release.txt'
             signingConfig signingConfigs.releaseConfig
         }
         debug {
             runProguard false
 //            testCoverageEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles 'proguard-release.txt'
             signingConfig signingConfigs.releaseConfig
         }
     }
