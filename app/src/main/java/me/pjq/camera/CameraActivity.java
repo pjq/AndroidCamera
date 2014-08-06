@@ -5,11 +5,13 @@ import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -21,11 +23,14 @@ public class CameraActivity extends FragmentActivity implements View.OnClickList
     Camera camera;
     CameraPreview cameraPreview;
     private CircleButton capture;
+    private CircleButton switchButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_activity_camera);
+
+        LocalPathResolver.init(getApplicationContext());
 
         if (!checkCameraHardware(getApplicationContext())) {
             finish();
@@ -43,7 +48,9 @@ public class CameraActivity extends FragmentActivity implements View.OnClickList
         preview.addView(cameraPreview);
 
         capture = (CircleButton) findViewById(R.id.button_capture);
+        switchButton = (CircleButton) findViewById(R.id.button_switch);
         capture.setOnClickListener(this);
+        switchButton.setOnClickListener(this);
 
     }
 
@@ -59,7 +66,14 @@ public class CameraActivity extends FragmentActivity implements View.OnClickList
         Camera c = null;
 
         try {
-            c = Camera.open();
+            int id = findFrontFacingCamera(Camera.CameraInfo.CAMERA_FACING_BACK);
+            if (id < 0) {
+                c = Camera.open();
+            } else {
+                c = Camera.open(id);
+            }
+
+            c.startFaceDetection();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -67,6 +81,69 @@ public class CameraActivity extends FragmentActivity implements View.OnClickList
         return c;
     }
 
+    private boolean safeCameraOpen(int id) {
+        boolean open = false;
+
+        try {
+            releaseCameraAndPreview();
+            camera = Camera.open(id);
+            open = null != camera;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return open;
+    }
+
+    boolean isFront = false;
+
+    private void cameraSwitch() {
+        int facing = Camera.CameraInfo.CAMERA_FACING_BACK;
+        if (isFront) {
+            facing = Camera.CameraInfo.CAMERA_FACING_BACK;
+        } else {
+            facing = Camera.CameraInfo.CAMERA_FACING_FRONT;
+        }
+
+        int cameraId = findFrontFacingCamera(facing);
+        boolean result = safeCameraOpen(cameraId);
+        if (result) {
+            isFront = !isFront;
+            cameraPreview.setCamera(camera);
+        }
+    }
+
+    private void releaseCameraAndPreview() {
+        cameraPreview.setCamera(null);
+
+        if (null != camera) {
+            camera.release();
+            camera = null;
+        }
+
+    }
+
+    private int findFrontFacingCamera(int facing) {
+        int cameraId = -1;
+        // Search for the front facing camera
+        int numberOfCameras = Camera.getNumberOfCameras();
+        for (int i = 0; i < numberOfCameras; i++) {
+            Camera.CameraInfo info = new Camera.CameraInfo();
+            Camera.getCameraInfo(i, info);
+            if (info.facing == facing) {
+                cameraId = i;
+                break;
+            }
+        }
+        return cameraId;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        camera.release();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -91,19 +168,36 @@ public class CameraActivity extends FragmentActivity implements View.OnClickList
         int id = v.getId();
 
         switch (id) {
-            case R.id.button_capture:
-                camera.takePicture(null, null, pictureCallback);
+            case R.id.button_capture: {
+                if (isProcessing) {
+                    Toast.makeText(getApplicationContext(), "Please waiting...", Toast.LENGTH_SHORT).show();
+                } else {
+                    try {
+                        camera.takePicture(null, null, pictureCallback);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            break;
+
+            case R.id.button_switch:
+                cameraSwitch();
 
                 break;
+
             default:
                 break;
         }
     }
 
+    public boolean isProcessing = false;
     private Camera.PictureCallback pictureCallback = new Camera.PictureCallback() {
         @Override
         public void onPictureTaken(byte[] data, Camera camera) {
-            File file = new File("image");
+            isProcessing = true;
+
+            File file = new File(LocalPathResolver.getBaseDir() + "/image_" + System.currentTimeMillis() + ".png");
             if (file.exists()) {
 
             } else {
@@ -121,6 +215,9 @@ public class CameraActivity extends FragmentActivity implements View.OnClickList
             } catch (Exception e) {
                 e.printStackTrace();
             }
+
+            camera.startPreview();
+            isProcessing = false;
         }
     };
 }
