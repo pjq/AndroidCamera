@@ -1,4 +1,4 @@
-package me.pjq.jacocoandroid.dummy;
+package me.pjq.camera.tmp.dummy;
 
 import java.util.ArrayList;
 import java.util.HashMap;

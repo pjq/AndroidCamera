@@ -28,7 +28,6 @@ dependencies {
 apt {
     arguments {
         androidManifestFile variant.processResources.manifestFile
-        //resourcePackageName 'me,pjq.jacocoandroid'
 
         // If you're using Android NBS flavors you should use the following line instead of hard-coded packageName
         resourcePackageName android.defaultConfig.packageName
@@ -76,23 +75,35 @@ android {
     }
 
     defaultConfig {
-        applicationId "me.pjq.jacocoandroid"
+        applicationId "me.pjq.camera"
         minSdkVersion 15
         targetSdkVersion 18
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "com.google.android.apps.common.testing.testrunner.GoogleInstrumentationTestRunner"
     }
+
+    signingConfigs {
+        releaseConfig {
+            storeFile file("zenon.keystore")
+            storePassword "zenonef"
+            keyAlias "zenon"
+            keyPassword "zenonef"
+        }
+    }
+
     buildTypes {
         release {
             runProguard true
             testCoverageEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.releaseConfig
         }
         debug {
             runProguard false
             testCoverageEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.releaseConfig
         }
     }
 

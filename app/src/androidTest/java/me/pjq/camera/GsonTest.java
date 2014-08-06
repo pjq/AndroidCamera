@@ -1,10 +1,12 @@
-package me.pjq.jacocoandroid;
+package me.pjq.camera;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import me.pjq.camera.tmp.GsonActivity;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;

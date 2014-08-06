@@ -1,4 +1,4 @@
-package me.pjq.jacocoandroid;
+package me.pjq.camera.tmp;
 
 import android.graphics.Bitmap;
 import android.support.v4.app.FragmentActivity;

@@ -1,4 +1,4 @@
-package me.pjq.jacocoandroid;
+package me.pjq.camera.tmp;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -10,6 +10,8 @@ import com.squareup.picasso.Picasso;
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
+
+import me.pjq.camera.R;
 
 /**
  * Created by pengjianqing on 7/21/14.
