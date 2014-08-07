@@ -37,7 +37,6 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     @Override
@@ -81,13 +80,15 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     }
 
     private void autoFocus() {
-        camera.autoFocus(new Camera.AutoFocusCallback() {
-            @Override
-            public void onAutoFocus(boolean success, Camera camera) {
-                if (success) {
+        if (null != camera) {
+            camera.autoFocus(new Camera.AutoFocusCallback() {
+                @Override
+                public void onAutoFocus(boolean success, Camera camera) {
+                    if (success) {
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     @Override

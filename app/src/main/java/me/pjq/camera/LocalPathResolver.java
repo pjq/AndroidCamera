@@ -18,9 +18,9 @@ public class LocalPathResolver {
         LocalPathResolver.base = baseDir;
 
         File file = new File(getBaseDir());
-        if (!file.isDirectory()){
+        if (!file.isDirectory()) {
             boolean result = file.mkdirs();
-            if (result){
+            if (result) {
 
             }
         }
@@ -46,5 +46,17 @@ public class LocalPathResolver {
 
     public static String getBaseDir() {
         return base + BASE_DIR;
+    }
+
+    public static String getVideoDir() {
+        return base + BASE_DIR + "/" + "video_" + System.currentTimeMillis() + ".mp4";
+    }
+
+    public static String getImageDir() {
+        return base + BASE_DIR + "/" + "image_" + System.currentTimeMillis() + ".png";
+    }
+
+    public static String getLogDir() {
+        return getBaseDir()+"/log";
     }
 }
