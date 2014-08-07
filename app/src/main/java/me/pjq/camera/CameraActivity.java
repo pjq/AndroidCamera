@@ -95,20 +95,21 @@ public class CameraActivity extends FragmentActivity implements View.OnClickList
         handler.sendEmptyMessageDelayed(0, 1000);
     }
 
-    Handler handler = new Handler(){
+    Handler handler = new Handler() {
         @Override
         public void dispatchMessage(Message msg) {
             restoreLayout();
         }
     };
 
-    private void restoreLayout(){
+    private void restoreLayout() {
         if (0 == preferenceUtil.getCaptureX() || 0 == preferenceUtil.getCaptureY()) {
 
         } else {
             RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) capture.getLayoutParams();
+            params = new RelativeLayout.LayoutParams(params.width, params.height);
             params.leftMargin = preferenceUtil.getCaptureX();
-            params.rightMargin = preferenceUtil.getCaptureY();
+            params.topMargin = preferenceUtil.getCaptureY();
 //            capture.setX(preferenceUtil.getCaptureX());
 //            capture.setY(preferenceUtil.getCaptureY());
             capture.setLayoutParams(params);
@@ -117,8 +118,9 @@ public class CameraActivity extends FragmentActivity implements View.OnClickList
 
         } else {
             RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) switchButton.getLayoutParams();
+            params = new RelativeLayout.LayoutParams(params.width, params.height);
             params.leftMargin = preferenceUtil.getSwitchX();
-            params.rightMargin = preferenceUtil.getSwitchY();
+            params.topMargin = preferenceUtil.getSwitchY();
 //            switchButton.setX(preferenceUtil.getSwitchX());
 //            switchButton.setY(preferenceUtil.getSwitchY());
             switchButton.setLayoutParams(params);
