@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
-import android.os.Bundle;
+import android.os.*;
 import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -16,6 +16,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import at.markushi.ui.CircleButton;
@@ -86,30 +87,50 @@ public class CameraActivity extends FragmentActivity implements View.OnClickList
 
         pictureCallback = new DefaultPictureCallBack(getApplicationContext());
 
-        if (0 == preferenceUtil.getCaptureX() || 0 == preferenceUtil.getCaptureY()) {
-
-        } else {
-            capture.setX(preferenceUtil.getCaptureX());
-            capture.setY(preferenceUtil.getCaptureY());
-        }
-        if (0 == preferenceUtil.getSwitchX() || 0 == preferenceUtil.getSwitchY()) {
-
-        } else {
-            switchButton.setX(preferenceUtil.getSwitchX());
-            switchButton.setY(preferenceUtil.getSwitchY());
-        }
-        root.requestLayout();
-
         switchButtonMoveListener = new MoveTouchListener(root);
         captureButtonMoveListener = new MoveTouchListener(root);
         switchButton.setOnTouchListener(switchButtonMoveListener);
         capture.setOnTouchListener(captureButtonMoveListener);
+
+        handler.sendEmptyMessageDelayed(0, 1000);
+    }
+
+    Handler handler = new Handler(){
+        @Override
+        public void dispatchMessage(Message msg) {
+            restoreLayout();
+        }
+    };
+
+    private void restoreLayout(){
+        if (0 == preferenceUtil.getCaptureX() || 0 == preferenceUtil.getCaptureY()) {
+
+        } else {
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) capture.getLayoutParams();
+            params.leftMargin = preferenceUtil.getCaptureX();
+            params.rightMargin = preferenceUtil.getCaptureY();
+//            capture.setX(preferenceUtil.getCaptureX());
+//            capture.setY(preferenceUtil.getCaptureY());
+            capture.setLayoutParams(params);
+        }
+        if (0 == preferenceUtil.getSwitchX() || 0 == preferenceUtil.getSwitchY()) {
+
+        } else {
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) switchButton.getLayoutParams();
+            params.leftMargin = preferenceUtil.getSwitchX();
+            params.rightMargin = preferenceUtil.getSwitchY();
+//            switchButton.setX(preferenceUtil.getSwitchX());
+//            switchButton.setY(preferenceUtil.getSwitchY());
+            switchButton.setLayoutParams(params);
+        }
+//        root.invalidate();
+//        root.requestLayout();
     }
 
     private MoveTouchListener switchButtonMoveListener;
     private MoveTouchListener captureButtonMoveListener;
 
-    static class MoveTouchListener implements View.OnTouchListener {
+    public static class MoveTouchListener implements View.OnTouchListener {
         float x;
         float y;
         float dx = 0;
@@ -335,10 +356,20 @@ public class CameraActivity extends FragmentActivity implements View.OnClickList
         intent.putExtra(Constants.COMMAND, Constants.COMMAND_STOP_SERVICE);
         startService(intent);
 
-        preferenceUtil.setCaptureX((int) captureButtonMoveListener.lastX);
-        preferenceUtil.setCaptureY((int) captureButtonMoveListener.lastY);
-        preferenceUtil.setSwitchX((int) switchButtonMoveListener.lastX);
-        preferenceUtil.setSwitchY((int) switchButtonMoveListener.lastY);
+        if (captureButtonMoveListener.lastX == 0 || captureButtonMoveListener.lastY == 0) {
+
+        } else {
+            preferenceUtil.setCaptureX((int) captureButtonMoveListener.lastX);
+            preferenceUtil.setCaptureY((int) captureButtonMoveListener.lastY);
+        }
+        if (switchButtonMoveListener.lastX == 0 || switchButtonMoveListener.lastY == 0) {
+
+        } else {
+            preferenceUtil.setSwitchX((int) switchButtonMoveListener.lastX);
+            preferenceUtil.setSwitchY((int) switchButtonMoveListener.lastY);
+        }
+
+//        android.os.Process.killProcess(Process.myPid());
     }
 
     private void registerMyReceiver() {
