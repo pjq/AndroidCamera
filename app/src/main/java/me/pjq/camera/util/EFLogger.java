@@ -1,4 +1,4 @@
-package me.pjq.camera;
+package me.pjq.camera.util;
 
 import android.annotation.SuppressLint;
 import android.content.pm.PackageInfo;
@@ -21,6 +21,8 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import me.pjq.camera.MyApplication;
 
 
 /**

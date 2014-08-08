@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.Intent;
 import android.hardware.Camera;
+import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
 import android.os.Handler;
 import android.os.IBinder;
@@ -12,6 +13,8 @@ import android.view.SurfaceHolder;
 
 import java.io.File;
 import java.io.IOException;
+
+import me.pjq.camera.util.LocalPathResolver;
 
 /**
  * Created by pengjianqing on 8/7/14.
@@ -29,7 +32,8 @@ public class RecorderService extends Service {
     public void onCreate() {
         recordingStatus = false;
         camera = CameraActivity.camera;
-        mSurfaceHolder = CameraActivity.surfaceView.getHolder();
+        cameraPreview = CameraActivity.cameraPreview;
+        mSurfaceHolder = cameraPreview.getHolder();
         pictureCallBack = new DefaultPictureCallBack(getApplicationContext());
 
         super.onCreate();
@@ -119,20 +123,21 @@ public class RecorderService extends Service {
 //            camera = Camera.open(cameraType);
             if (null == camera) {
                 camera = CameraActivity.getCameraInstance();
+                camera.setPreviewDisplay(mSurfaceHolder);
+                camera.setDisplayOrientation(90);
+                camera.startPreview();
+                Camera.Parameters p = camera.getParameters();
+                camera.setParameters(p);
             }
-            camera.setPreviewDisplay(mSurfaceHolder);
-            camera.setDisplayOrientation(90);
-            Camera.Parameters p = camera.getParameters();
-            camera.setParameters(p);
+
             camera.unlock();
 
             mediaRecorder = new MediaRecorder();
             mediaRecorder.setCamera(camera);
             mediaRecorder.setAudioSource(MediaRecorder.AudioSource.DEFAULT);
             mediaRecorder.setVideoSource(MediaRecorder.VideoSource.DEFAULT);
-            mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-            mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-            mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
+            CamcorderProfile profile = CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH);
+            mediaRecorder.setProfile(profile);
 
             String uniqueOutFile = LocalPathResolver.getVideoDir();
             File outFile = new File(uniqueOutFile);
@@ -142,7 +147,6 @@ public class RecorderService extends Service {
 
             mediaRecorder.setOutputFile(uniqueOutFile);
 
-            mediaRecorder.setVideoSize(350, 250);
             mediaRecorder.setPreviewDisplay(mSurfaceHolder.getSurface());
             mediaRecorder.setOrientationHint(90);
 
@@ -164,7 +168,10 @@ public class RecorderService extends Service {
         try {
             if (null != mediaRecorder) {
                 mediaRecorder.stop();
+                mediaRecorder.reset();
                 mediaRecorder.release();
+                mediaRecorder = null;
+                camera.lock();
             }
         } catch (Exception e) {
             e.printStackTrace();

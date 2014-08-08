@@ -1,5 +1,5 @@
 
-package me.pjq.camera;
+package me.pjq.camera.util;
 
 
 import android.app.Notification;
@@ -10,6 +10,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.widget.RemoteViews;
+
+import me.pjq.camera.Constants;
+import me.pjq.camera.R;
 
 public class NotificationUtil {
     private static final String TAG = NotificationUtil.class.getSimpleName();

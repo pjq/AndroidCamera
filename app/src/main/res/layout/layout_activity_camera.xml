@@ -37,4 +37,13 @@
         app:cb_color="#ffcc4624"
         app:cb_pressed_ring_width="15dip" />
 
+    <at.markushi.ui.CircleButton
+        android:id="@+id/button_record"
+        android:layout_width="100dip"
+        android:layout_height="100dip"
+        android:layout_alignParentBottom="true"
+        android:src="@drawable/ic_action_tick"
+        app:cb_color="#ff19cc06"
+        app:cb_pressed_ring_width="15dip" />
+
 </RelativeLayout>

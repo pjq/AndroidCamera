@@ -9,8 +9,6 @@ import android.hardware.Camera;
 import android.os.*;
 import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -20,19 +18,21 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import at.markushi.ui.CircleButton;
+import me.pjq.camera.util.EFLogger;
+import me.pjq.camera.util.LocalPathResolver;
+import me.pjq.camera.util.NotificationUtil;
+import me.pjq.camera.util.PreferenceUtil;
 
 public class CameraActivity extends FragmentActivity implements View.OnClickListener {
     private static final String TAG = CameraActivity.class.getSimpleName();
     public static Camera camera;
     public static CameraPreview cameraPreview;
     private View root;
-    private CircleButton capture;
+    private CircleButton captureButton;
+    private CircleButton recordButton;
     private CircleButton switchButton;
     private DefaultPictureCallBack pictureCallback;
-    public static SurfaceView surfaceView;
     private int cameraId = 0;
-    private int _xDelta;
-    private int _yDelta;
     private PreferenceUtil preferenceUtil;
 
     @Override
@@ -61,58 +61,32 @@ public class CameraActivity extends FragmentActivity implements View.OnClickList
         FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
         preview.addView(cameraPreview);
 
-        capture = (CircleButton) findViewById(R.id.button_capture);
+        captureButton = (CircleButton) findViewById(R.id.button_capture);
+        recordButton = (CircleButton) findViewById(R.id.button_record);
         switchButton = (CircleButton) findViewById(R.id.button_switch);
-        capture.setOnClickListener(this);
+        captureButton.setOnClickListener(this);
+        recordButton.setOnClickListener(this);
         switchButton.setOnClickListener(this);
-
-        surfaceView = (SurfaceView) findViewById(R.id.camera_surfaceview);
-        surfaceView.getHolder().setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-        surfaceView.getHolder().addCallback(new SurfaceHolder.Callback() {
-            @Override
-            public void surfaceCreated(SurfaceHolder holder) {
-
-            }
-
-            @Override
-            public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-
-            }
-
-            @Override
-            public void surfaceDestroyed(SurfaceHolder holder) {
-
-            }
-        });
 
         pictureCallback = new DefaultPictureCallBack(getApplicationContext());
 
         switchButtonMoveListener = new MoveTouchListener(root);
         captureButtonMoveListener = new MoveTouchListener(root);
         switchButton.setOnTouchListener(switchButtonMoveListener);
-        capture.setOnTouchListener(captureButtonMoveListener);
+        captureButton.setOnTouchListener(captureButtonMoveListener);
 
-        handler.sendEmptyMessageDelayed(0, 1000);
+        restoreLayout();
     }
-
-    Handler handler = new Handler() {
-        @Override
-        public void dispatchMessage(Message msg) {
-            restoreLayout();
-        }
-    };
 
     private void restoreLayout() {
         if (0 == preferenceUtil.getCaptureX() || 0 == preferenceUtil.getCaptureY()) {
 
         } else {
-            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) capture.getLayoutParams();
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) captureButton.getLayoutParams();
             params = new RelativeLayout.LayoutParams(params.width, params.height);
             params.leftMargin = preferenceUtil.getCaptureX();
             params.topMargin = preferenceUtil.getCaptureY();
-//            capture.setX(preferenceUtil.getCaptureX());
-//            capture.setY(preferenceUtil.getCaptureY());
-            capture.setLayoutParams(params);
+            captureButton.setLayoutParams(params);
         }
         if (0 == preferenceUtil.getSwitchX() || 0 == preferenceUtil.getSwitchY()) {
 
@@ -121,12 +95,8 @@ public class CameraActivity extends FragmentActivity implements View.OnClickList
             params = new RelativeLayout.LayoutParams(params.width, params.height);
             params.leftMargin = preferenceUtil.getSwitchX();
             params.topMargin = preferenceUtil.getSwitchY();
-//            switchButton.setX(preferenceUtil.getSwitchX());
-//            switchButton.setY(preferenceUtil.getSwitchY());
             switchButton.setLayoutParams(params);
         }
-//        root.invalidate();
-//        root.requestLayout();
     }
 
     private MoveTouchListener switchButtonMoveListener;
@@ -204,7 +174,6 @@ public class CameraActivity extends FragmentActivity implements View.OnClickList
             } else {
                 c = Camera.open(id);
             }
-//            c.startFaceDetection();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -217,7 +186,11 @@ public class CameraActivity extends FragmentActivity implements View.OnClickList
 
         try {
             releaseCameraAndPreview();
-            camera = Camera.open(id);
+            if (id < 0) {
+                camera = Camera.open();
+            } else {
+                camera = Camera.open(id);
+            }
             open = null != camera;
             cameraId = id;
         } catch (Exception e) {
@@ -273,22 +246,28 @@ public class CameraActivity extends FragmentActivity implements View.OnClickList
         return cameraId;
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        return true;
+    private void takePicture() {
+        if (pictureCallback.isProcessing()) {
+            Toast.makeText(getApplicationContext(), "Please waiting...", Toast.LENGTH_SHORT).show();
+        } else {
+            try {
+                camera.takePicture(null, null, pictureCallback);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
+    private boolean isRecording = false;
+
+    private void recordVideo() {
+        if (isRecording) {
+            handleAction(Constants.ACTION_STOP_TAKE_VIDEO);
+        } else {
+            handleAction(Constants.ACTION_TAKE_VIDEO);
         }
-        return super.onOptionsItemSelected(item);
+
+        isRecording = !isRecording;
     }
 
     @Override
@@ -297,21 +276,16 @@ public class CameraActivity extends FragmentActivity implements View.OnClickList
 
         switch (id) {
             case R.id.button_capture: {
-                if (pictureCallback.isProcessing()) {
-                    Toast.makeText(getApplicationContext(), "Please waiting...", Toast.LENGTH_SHORT).show();
-                } else {
-                    try {
-                        camera.takePicture(null, null, pictureCallback);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
+                takePicture();
             }
             break;
 
             case R.id.button_switch:
                 cameraSwitch();
+                break;
 
+            case R.id.button_record:
+                recordVideo();
                 break;
 
             default:

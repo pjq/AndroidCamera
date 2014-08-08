@@ -8,6 +8,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import me.pjq.camera.util.LocalPathResolver;
+
 /**
  * Created by pengjianqing on 8/7/14.
  */

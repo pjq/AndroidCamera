@@ -1,7 +1,9 @@
-package me.pjq.camera;
+package me.pjq.camera.util;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+
+import me.pjq.camera.MyApplication;
 
 /**
  * Created by pengjianqing on 7/2/14.

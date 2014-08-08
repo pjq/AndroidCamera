@@ -11,6 +11,9 @@ import android.util.DisplayMetrics;
 
 import java.lang.reflect.Field;
 
+import me.pjq.camera.util.EFLogger;
+import me.pjq.camera.util.LocalPathResolver;
+
 public class MyApplication extends Application {
     private static final String TAG = MyApplication.class.getSimpleName();
 
