@@ -124,7 +124,7 @@ public class CameraActivity extends FragmentActivity implements View.OnClickList
                     y = event.getY();
                     dx = x - v.getX();
                     dy = y - v.getY();
-                    EFLogger.i(TAG, "ACTION_DOWN, x = " + x + ", y = " + y);
+//                    EFLogger.i(TAG, "ACTION_DOWN, x = " + x + ", y = " + y);
                 }
                 break;
 
@@ -135,13 +135,14 @@ public class CameraActivity extends FragmentActivity implements View.OnClickList
                     v.setY(event.getY() - dy);
                     x = event.getX();
                     y = event.getY();
-                    EFLogger.i(TAG, "ACTION_MOVE, x = " + lastX + ", y = " + lastY);
+//                    EFLogger.i(TAG, "ACTION_MOVE, x = " + lastX + ", y = " + lastY);
                     root.requestLayout();
                 }
                 break;
 
                 case MotionEvent.ACTION_UP: {
                     root.invalidate();
+                    EFLogger.i(TAG, "ACTION_MOVE, x = " + lastX + ", y = " + lastY);
                 }
                 break;
 
@@ -268,6 +269,15 @@ public class CameraActivity extends FragmentActivity implements View.OnClickList
         }
 
         isRecording = !isRecording;
+        updateRecordViewStatus(isRecording);
+    }
+
+    private void updateRecordViewStatus(boolean isRecording) {
+        if (isRecording) {
+            recordButton.setImageResource(R.drawable.ic_record);
+        } else {
+            recordButton.setImageResource(R.drawable.ic_action_tick);
+        }
     }
 
     @Override
