@@ -43,7 +43,7 @@ public class NotificationUtil {
         builder.setContentTitle(context.getString(R.string.app_name) + "(" + title + ")");
         builder.setContentText(message);
         builder.setTicker(context.getString(R.string.app_name));
-        builder.setSmallIcon(R.drawable.ic_launcher);
+        builder.setSmallIcon(R.drawable.ic_record);
 
         builder.setWhen(System.currentTimeMillis());
         NotificationManager nm = (NotificationManager) context

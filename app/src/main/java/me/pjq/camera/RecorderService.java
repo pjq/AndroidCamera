@@ -24,13 +24,13 @@ public class RecorderService extends Service {
     private SurfaceHolder mSurfaceHolder;
     private static Camera camera;
     private static CameraPreview cameraPreview;
-    public static boolean recordingStatus;
+    public static boolean isRecording;
     private MediaRecorder mediaRecorder;
     private int cameraType = 0;
 
     @Override
     public void onCreate() {
-        recordingStatus = false;
+        isRecording = false;
         camera = CameraActivity.camera;
         cameraPreview = CameraActivity.cameraPreview;
         mSurfaceHolder = cameraPreview.getHolder();
@@ -55,7 +55,7 @@ public class RecorderService extends Service {
                 handler.sendEmptyMessageDelayed(0, 3000);
                 break;
             case Constants.COMMAND_TAKE_VIDEO:
-                if (recordingStatus == false) {
+                if (isRecording == false) {
                     startRecording();
                 }
                 break;
@@ -80,7 +80,7 @@ public class RecorderService extends Service {
             camera.release();
         }
         camera = null;
-        recordingStatus = false;
+        isRecording = false;
 
         super.onDestroy();
     }
@@ -118,7 +118,7 @@ public class RecorderService extends Service {
     @SuppressLint("NewApi")
     public boolean startRecording() {
         try {
-            recordingStatus = true;
+            isRecording = true;
 
 //            camera = Camera.open(cameraType);
             if (null == camera) {
@@ -166,6 +166,7 @@ public class RecorderService extends Service {
     // Stop service
     public void stopRecording() {
         try {
+            isRecording = false;
             if (null != mediaRecorder) {
                 mediaRecorder.stop();
                 mediaRecorder.reset();

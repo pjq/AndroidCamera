@@ -51,7 +51,6 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
             e.printStackTrace();
         }
 
-
         setPreviewSize();
 
         try {

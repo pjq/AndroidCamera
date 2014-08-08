@@ -325,7 +325,12 @@ public class CameraActivity extends FragmentActivity implements View.OnClickList
     }
 
     private void showNotification() {
-        NotificationUtil.showNotification(getApplicationContext(), CameraActivity.class, "Camera On", "Click to show details");
+        boolean showNormal = true;
+        if (showNormal) {
+            NotificationUtil.showNotificationNormal(getApplicationContext(), CameraActivity.class, getString(R.string.notification_title_cameraon), getString(R.string.notification_title_cameraon_message));
+        } else {
+            NotificationUtil.showNotification(getApplicationContext(), CameraActivity.class, getString(R.string.notification_title_cameraon), getString(R.string.notification_title_cameraon_message));
+        }
     }
 
     @Override
@@ -373,10 +378,12 @@ public class CameraActivity extends FragmentActivity implements View.OnClickList
             String action = intent.getAction();
 
             handleAction(action);
+            showNotification();
         }
     };
 
     private void handleAction(String action) {
+        EFLogger.i(TAG, "action = " + action);
         if (!TextUtils.isEmpty(action)) {
             if (action.equalsIgnoreCase(Constants.ACTION_TAKE_PICTURE)) {
                 Intent intent = new Intent();
@@ -400,7 +407,6 @@ public class CameraActivity extends FragmentActivity implements View.OnClickList
                 startService(intent);
             }
 
-            showNotification();
         }
     }
 }
